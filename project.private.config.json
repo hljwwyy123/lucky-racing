@@ -3,5 +3,25 @@
   "projectname": "lucky-racing",
   "setting": {
     "compileHotReLoad": true
+  },
+  "condition": {
+    "miniprogram": {
+      "list": [
+        {
+          "name": "活动列表",
+          "pathName": "pages/admin/activityList/index",
+          "query": "",
+          "launchMode": "default",
+          "scene": null
+        },
+        {
+          "name": "创建活动",
+          "pathName": "pages/admin/createActivity/index",
+          "query": "",
+          "launchMode": "default",
+          "scene": null
+        }
+      ]
+    }
   }
 }

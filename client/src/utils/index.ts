@@ -28,6 +28,33 @@ export async function getUnionId () {
     return _unionId
 }
 
+export async  function initCloud() {
+    const cloud = new Taro.cloud.Cloud({
+        resourceAppid: 'wx98786041f7a0b60d',
+        resourceEnv: 'racing-7gxq1capbac7539a'
+    });
+    await cloud.init();
+    console.log('Taro.shareCloud inited ====')
+    Taro.shareCloud = cloud;
+    const loginRes: any = await cloud.callFunction({
+        name: 'login'
+    });
+    const { FROM_UNIONID, FROM_OPENID } = loginRes.result;
+    Taro.setStorageSync("openId", FROM_OPENID)
+    Taro.setStorageSync("unionId", FROM_UNIONID)
+    return cloud;
+}
+
+export async function getTaroCloud() {
+    return new Promise((resolve) => {
+        if (!Taro.shareCloud) {
+            resolve(initCloud())
+        } else {
+            resolve(Taro.shareCloud)
+        }
+    })
+}
+
 export function randomScore() {
     return getRandomBetween(90000, 100000)
 }
