@@ -10,8 +10,8 @@
   "appid": "wxeb04e9890b8e851f",
   "setting": {
     "urlCheck": true,
-    "es6": false,
-    "enhance": false,
+    "es6": true,
+    "enhance": true,
     "compileHotReLoad": false,
     "postcss": false,
     "minified": false,
@@ -19,7 +19,8 @@
       "ignore": [],
       "disablePlugins": [],
       "outputPath": ""
-    }
+    },
+    "uglifyFileName": true
   },
   "compileType": "miniprogram",
   "libVersion": "3.4.3",

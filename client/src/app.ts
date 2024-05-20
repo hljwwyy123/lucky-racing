@@ -18,7 +18,14 @@ class App extends Component<PropsWithChildren>  {
       resourceEnv: 'racing-7gxq1capbac7539a'
     });
     await cloud.init();
-    Taro.shareCloud = cloud
+    console.log('Taro.shareCloud inited ====')
+    Taro.shareCloud = cloud;
+    const loginRes: any = await cloud.callFunction({
+      name: 'login'
+    });
+    const { FROM_UNIONID, FROM_OPENID } = loginRes.result;
+    Taro.setStorageSync("openId", FROM_OPENID)
+    Taro.setStorageSync("unionId", FROM_UNIONID)
   }
 
   componentDidShow () {}
