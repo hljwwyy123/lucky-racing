@@ -59,6 +59,12 @@ export function randomScore() {
     return getRandomBetween(90000, 100000)
 }
 
+export function sleep(time) {
+    return new Promise((resolve) => setTimeout(() => {
+        resolve(true)
+    }, time * 1000))
+}
+
 function getRandomBetween(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
 }

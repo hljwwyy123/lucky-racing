@@ -4,13 +4,14 @@ import { View } from '@tarojs/components'
 import { Button, Form, DatePicker, Switch, Image, Input, Divider } from "@nutui/nutui-react-taro"
 import { Edit, Comment, List, Flag, Coupon, Notice, ArrowRight } from '@nutui/icons-react-taro'
 import CustomNoticeBar from '../../../components/NoticeBar'
+import { sleep } from '../../../utils'
 // import './my.less'
 
 interface RouterParams {
   activityId?: string
 }
 
-export default function Mine() {
+export default function CreateActivity() {
   const [openId, setOpenId] = useState<string>('')
   const [unionId, setUnionId] = useState<string>('')
   const [activityId, setActivityId] = useState<string>('')
@@ -20,9 +21,11 @@ export default function Mine() {
   const [activityInfo, setActivityInfo] = useState<any>(null)
   const [showBeginTime, setShowBeginTime] = useState(false)
   const [showEndTime, setShowEndTime] = useState(false)
+  const [needReview, setNeedReview] = useState(false)
 
   const router = useRouter<any>();
   const [form] = Form.useForm()
+  const nowTime = new Date();
 
   useEffect(() => {
     const { params } = router as { params: RouterParams };
@@ -36,26 +39,20 @@ export default function Mine() {
   }, []);
 
   const getActivityInfo = async (id: string) => {
+    Taro.showLoading()
     await Taro.getCloud();
-    const res = await Taro.shareCloud.callFunction({
-      name: 'lucky_get_activity_info',
-      data: { id }
-    });
-    const { result } = res
-    if (result.data && result.data.length) {
-      const activityInfo = result.data[0];
-      console.log({activityInfo})
-      setActivityInfo(activityInfo);
-      form.setFieldsValue({ beginTime: activityInfo.beginTime})
-      form.setFieldsValue({ endTime: activityInfo.endTime})
-      form.setFieldsValue({ activityName: activityInfo.activityName})
-      form.setFieldsValue({ needReview: activityInfo.needReview})
+    const activityInfo: any = await getActivityInfo(id)
+    // if (result.data && result.data.length) {
+      // const activityInfo = result.data[0];
+    console.log({activityInfo})
+    setActivityInfo(activityInfo);
+    form.setFieldsValue({ beginTime: activityInfo.beginTime})
+    form.setFieldsValue({ endTime: activityInfo.endTime})
+    form.setFieldsValue({ activityName: activityInfo.activityName})
+    form.setFieldsValue({ needReview: activityInfo.needReview})
+    setNeedReview(activityInfo.needReview)
 
-    } else {
-      Taro.showModal({
-        content: '未查询到活动信息'
-      })
-    }
+    Taro.hideLoading()
   }
 
 
@@ -98,7 +95,7 @@ export default function Mine() {
         }}
         footer={
           <Button loading={loading} formType="submit" block type="primary">
-            {activityId ? '修改活动信息' : '创建活动'}
+            {!!activityId ? '修改活动信息' : '创建活动'}
           </Button>
         }
       >
@@ -151,11 +148,12 @@ export default function Mine() {
           label="是否需要审核"
           name="needReview"
         >
-          <Switch />
+          <Switch onChange={(v) => {
+            setNeedReview(v)
+          }} checked={needReview} />
         </Form.Item>
-        <Divider />
         <DatePicker 
-          defaultValue={new Date()}
+          defaultValue={nowTime}
           visible={showBeginTime}
           type="datetime"
           onClose={() => setShowBeginTime(false)}
@@ -166,8 +164,8 @@ export default function Mine() {
           }}
           
         />
-        <DatePicker 
-          defaultValue={new Date()}
+        <DatePicker
+          defaultValue={nowTime}
           visible={showEndTime}
           type="datetime"
           onClose={() => setShowEndTime(false)}
