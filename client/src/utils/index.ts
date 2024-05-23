@@ -1,6 +1,6 @@
 import moment from "moment";
 import Taro from "@tarojs/taro"
-import { REAL_SCORE_ITEM } from "../type/realTime";
+import { REAL_SCORE_ITEM } from "../type";
 
 export async function getOpenId () {
     let _openId = Taro.getStorageSync("openId");
@@ -63,6 +63,13 @@ export function sleep(time) {
     return new Promise((resolve) => setTimeout(() => {
         resolve(true)
     }, time * 1000))
+}
+
+export function UUID(length = 16) {
+    // 获取当前时间戳
+  const timestamp = Date.now().toString(36); // 转换为36进制字符串
+  const randomNumber = Math.random().toString(36).substring(2, 10); // 获取随机数并转换为36进制字符串
+  return (timestamp + randomNumber).substring(0, length).toUpperCase();
 }
 
 function getRandomBetween(min, max) {

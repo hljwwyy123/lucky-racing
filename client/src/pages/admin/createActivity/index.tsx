@@ -3,6 +3,7 @@ import Taro, { useRouter } from '@tarojs/taro'
 import { View } from '@tarojs/components'
 import { Button, Form, DatePicker, Switch, Image, Input, Divider } from "@nutui/nutui-react-taro"
 import { Edit, Comment, List, Flag, Coupon, Notice, ArrowRight } from '@nutui/icons-react-taro'
+import { getActivityInfo } from "../../../api/activity"
 import CustomNoticeBar from '../../../components/NoticeBar'
 import { sleep } from '../../../utils'
 // import './my.less'
@@ -33,18 +34,15 @@ export default function CreateActivity() {
     console.log({activityId})
     if (activityId) {
       setActivityId(activityId)
-      getActivityInfo(activityId)
+      getData(activityId)
     }
 
   }, []);
 
-  const getActivityInfo = async (id: string) => {
+  const getData = async (id: string) => {
     Taro.showLoading()
     await Taro.getCloud();
     const activityInfo: any = await getActivityInfo(id)
-    // if (result.data && result.data.length) {
-      // const activityInfo = result.data[0];
-    console.log({activityInfo})
     setActivityInfo(activityInfo);
     form.setFieldsValue({ beginTime: activityInfo.beginTime})
     form.setFieldsValue({ endTime: activityInfo.endTime})

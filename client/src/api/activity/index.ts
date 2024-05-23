@@ -8,14 +8,14 @@ export async function getActivityInfo(id: string) {
         data: { id }
     });
     const { result } = res;
-    result.activityStatus = getActivityStatus(result)
-    return result
+    const activityInfo = result.data[0];
+    activityInfo.status = getActivityStatus(activityInfo)
+    return activityInfo
 }
 
 export function getActivityStatus(activity) {
     const now = new Date();
     const { beginTime, endTime, status } = activity;
-  
     if (status === ACTIVITY_STATUS.CLOSED) {
       return ACTIVITY_STATUS.CLOSED;
     }
