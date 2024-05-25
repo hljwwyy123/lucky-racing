@@ -2,9 +2,9 @@ import { useEffect, useState } from 'react'
 import Taro, { useShareAppMessage } from '@tarojs/taro'
 import { View } from '@tarojs/components'
 import { Button, Cell } from "@nutui/nutui-react-taro"
-import { Share, ArrowRight } from '@nutui/icons-react-taro'
+import { Share, ArrowRight, Edit } from '@nutui/icons-react-taro'
 import { getActivityStatus } from "../../../api/activity"
-import { ACTIVITY_STATUS_MAP } from '../../../constants/activity'
+import { ACTIVITY_STATUS, ACTIVITY_STATUS_MAP } from '../../../constants/activity'
 import './activityList.less'
 
 export default function ActivityList() {
@@ -56,12 +56,14 @@ export default function ActivityList() {
       {
         list.map((el) => <Cell extra={<span className='extra-text' 
             onClick={() => Taro.navigateTo({url: '/pages/admin/awardConfig/index?activityId='+el._id})} >
-            <Button className='share-btn' onClick={(e) => onShare(e, el)} openType="share" ><Share /></Button>
+            {
+              +el.status <= ACTIVITY_STATUS.ONGOING &&
+              <Button className='share-btn' onClick={(e) => onShare(e, el)} openType="share" ><Share /></Button>
+            }
             奖品配置<ArrowRight />
           </span>} 
           title={<div className='activity-list-item' >
-            {/* <List /> */}
-            <span className='activity_name' onClick={() => Taro.navigateTo({url: '/pages/admin/createActivity/index?activityId='+el._id})} style={{ marginLeft: '5px' }}>{el.activityName}</span>
+            <span className='activity_name' onClick={() => Taro.navigateTo({url: '/pages/admin/createActivity/index?activityId='+el._id})} style={{ marginLeft: '5px' }}>{el.activityName}<Edit /></span>
             <span className={`activity-status status-${el.status}`}>{ACTIVITY_STATUS_MAP[`${el.status}`]}</span>
           </div>}
         />)

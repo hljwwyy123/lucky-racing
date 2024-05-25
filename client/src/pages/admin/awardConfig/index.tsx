@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import Taro, { useRouter } from '@tarojs/taro'
 import { View } from '@tarojs/components'
-import { Drag, FixedNav, Table, Button, Form, InputNumber, Range, Image, Popup, Switch, Input, Divider, ConfigProvider } from "@nutui/nutui-react-taro"
+import { Drag, FixedNav, Table, Button, Form, InputNumber, Range, Image, Popup, Switch, Input, Divider } from "@nutui/nutui-react-taro"
 import { Plus, Edit } from '@nutui/icons-react-taro'
 import { getActivityInfo } from '../../../api/activity'
 import { deleteAward, getAwardInfo, updateAwardConfig } from "../../../api/award"
@@ -35,7 +35,7 @@ export default function AwardConfig() {
       fixed: 'left',
       width: 80,
       render: (rowData: IPrize, rowIndex: number) => {
-        return <div onClick={() => onEditPrize(rowData)}>{rowData.prizeName}</div>
+        return <div className='activity-name-cell' onClick={() => onEditPrize(rowData)}>{rowData.prizeName}<Edit /></div>
       }
     },
     {
@@ -89,10 +89,16 @@ export default function AwardConfig() {
   useEffect(() => {
     const { params } = router as { params: RouterParams };
     const { activityId = '' } = params;
-    ACTIVITY_ID = activityId
-    setActivityId(activityId)
-    getUnionId();
-    getPrizeList()
+    ACTIVITY_ID = activityId;
+    if (activityId) {
+      setActivityId(activityId)
+      getUnionId();
+      getPrizeList()
+    } else {
+      Taro.showModal({
+        content: '没有找到活动'
+      })
+    }
   }, []);
 
   const getPrizeList = async () => {
@@ -210,7 +216,7 @@ export default function AwardConfig() {
 
   return (
     <View className='award-container'>
-      <Divider contentPosition="left">{activityInfo.activityName}<span className={`activity-status status-${activityInfo.status}`}>{ACTIVITY_STATUS_MAP[`${activityInfo.status}`]}</span></Divider>
+      <Divider contentPosition="left">{activityInfo?.activityName}<span className={`activity-status status-${activityInfo?.status}`}>{ACTIVITY_STATUS_MAP[`${activityInfo?.status}`]}</span></Divider>
       <Table columns={columnsStickLeft} data={prizeList} noData={<EmptyContent />}></Table>
       {/* <Button className='add-prize-btn' onClick={() => onEditPrize()} icon={<Plus />}>添加奖品</Button> */}
       {

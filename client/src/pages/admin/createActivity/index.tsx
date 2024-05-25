@@ -60,23 +60,24 @@ export default function CreateActivity() {
     if (activityId) {
       payload.id = activityId;
     }
-    const bindRes = await Taro.shareCloud.callFunction({
+    const createRes = await Taro.shareCloud.callFunction({
       name: 'lucky_create_activity',
       data: {
         ...payload,
       }
     });
-    const { id } = bindRes.result; 
-    if (bindRes) {
+    const { id } = createRes.result; 
+    if (createRes) {
       Taro.showModal({
         title: "创建成功",
         content: "现在去配置奖品吧~",
-        confirmText: '去配置',
-        cancelText: '稍后再说',
         success: () => {
           Taro.navigateTo({
             url: '/pages/admin/awardConfig/index?activityId='+id
           })
+        },
+        fail: () => {
+          Taro.navigateBack()
         }
       })
     }
