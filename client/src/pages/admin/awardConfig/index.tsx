@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react'
 import Taro, { useRouter } from '@tarojs/taro'
 import { View } from '@tarojs/components'
-import { Drag, FixedNav, Table, Button, Form, InputNumber, Range, Image, Popup, Switch, Input, Divider } from "@nutui/nutui-react-taro"
-import { Plus } from '@nutui/icons-react-taro'
+import { Drag, FixedNav, Table, Button, Form, InputNumber, Range, Image, Popup, Switch, Input, Divider, ConfigProvider } from "@nutui/nutui-react-taro"
+import { Plus, Edit } from '@nutui/icons-react-taro'
 import { getActivityInfo } from '../../../api/activity'
-import { getAwardInfo, updateAwardConfig } from "../../../api/award"
+import { deleteAward, getAwardInfo, updateAwardConfig } from "../../../api/award"
 import { UUID, getUnionId } from "../../../utils"
 import { IPrize, TableColumnProps } from "../../../type"
 import EmptyContent from '../../../components/EmptyContent'
@@ -15,15 +15,16 @@ interface RouterParams {
   activityId?: string
 }
 
+let ACTIVITY_ID = '';
 
 export default function AwardConfig() {
-  const [openId, setOpenId] = useState<string>('')
   const [activityId, setActivityId] = useState<string>('')
-  const [loading, setLoading] = useState(false);
   const [activityInfo, setActivityInfo] = useState<any>({});
   const [prizeList, setPrizeList] = useState<any[]>([]);
+  const [localImage, setlocalImage] = useState<string>()
   const [showPopup, setShowPopup] = useState<boolean>(false);
   const [saveLoaing, setSaveLoaing] = useState<boolean>(false);
+  const [isEditSpecial, setIsEditSpecial] = useState<boolean>(false);
   const [editPrizeInfo, setEditPrizeInfo]  = useState<IPrize>();
 
   const [columnsStickLeft] = useState<Array<IPrize | TableColumnProps>>([
@@ -32,7 +33,10 @@ export default function AwardConfig() {
       key: 'prizeName',
       align: 'center',
       fixed: 'left',
-      width: 100,
+      width: 80,
+      render: (rowData: IPrize, rowIndex: number) => {
+        return <div onClick={() => onEditPrize(rowData)}>{rowData.prizeName}</div>
+      }
     },
     {
       title: '奖品图片',
@@ -43,17 +47,38 @@ export default function AwardConfig() {
     },
     {
       title: '奖品数量',
-      key: 'prizeNum',
+      key: 'totalNum',
+      width: 40,
+    },
+    {
+      title: '剩余数量',
+      key: 'remainNum',
+      width: 40,
+      render: (rowData: IPrize, rowIndex: number) => {
+        return rowData.totalNum - rowData.offerNum
+      }
     },
     {
       title: '中奖概率',
       key: 'probability',
+      width: 40,
+      render: (rowData: IPrize, rowIndex: number) => {
+        return <div >{rowData.probability}%</div>
+      }
     },
     {
       title: '是否特殊奖池',
       key: 'isSpecial',
+      width: 50,
       render: (rowData: IPrize, rowIndex: number) => {
-        return <Switch checked={rowData.isSpecial} disabled />
+        return <Switch key={rowData._id} checked={rowData.isSpecial} />
+      }
+    },
+    {
+      title: '操作',
+      key: 'action',
+      render: (rowData: IPrize, rowIndex: number) => {
+        return <Button type='danger' onClick={() => onDeleteAward(rowData._id + '')}  >删除</Button>
       }
     },
   ]);
@@ -64,75 +89,95 @@ export default function AwardConfig() {
   useEffect(() => {
     const { params } = router as { params: RouterParams };
     const { activityId = '' } = params;
+    ACTIVITY_ID = activityId
     setActivityId(activityId)
     getUnionId();
-    getData(activityId)
+    getPrizeList()
   }, []);
 
-  const getData = async (activityId: string) => {
+  const getPrizeList = async () => {
     Taro.showLoading()
-    await Taro.getCloud();
-    const activityInfo = await getActivityInfo(activityId)
-    console.log({activityInfo})
+    await Taro.initCloud();
+    const activityInfo = await getActivityInfo(ACTIVITY_ID)
     setActivityInfo(activityInfo);
-    if (activityInfo.prizeId) {
-      const awardList = await getAwardInfo(activityId)
-      setPrizeList(awardList)
-    }
+    const awardList = await getAwardInfo(ACTIVITY_ID)
+    setPrizeList(awardList)
     Taro.hideLoading()
   }
 
 
   const onEditPrize = (_prizeInfo: IPrize | null = null) => {
-    if (_prizeInfo) {
-      setEditPrizeInfo(_prizeInfo)
-    } else {
-      const prizeId = UUID();
-      const prizeInfo:IPrize = {
-        key: prizeId,
-        prizeId: prizeId,
-        prizeName: '',
-        prizeImage: '',
-        prizeNum: 1,
-        probability: 0.1,
-        isSpecial: false,
+    try {
+      if (_prizeInfo) {
+        setShowPopup(true)
+        setTimeout(() => {
+          form.setFieldsValue({
+            id: _prizeInfo._id,
+            prizeName: _prizeInfo.prizeName,
+            totalNum: _prizeInfo.totalNum,
+            probability: _prizeInfo.probability,
+          })
+        }, 100);
+
+        setEditPrizeInfo({..._prizeInfo})
+        setIsEditSpecial(!!_prizeInfo?.isSpecial)
+        setlocalImage(_prizeInfo.prizeImage)
+      } else {
+        const prizeuuid = UUID();
+        const prizeInfo:IPrize = {
+          key: prizeuuid,
+          prizeName: '',
+          prizeImage: '',
+          totalNum: 1,
+          offerNum: 0,
+          probability: 0.01,
+          isSpecial: false,
+        }
+        setEditPrizeInfo(prizeInfo)
       }
-      setEditPrizeInfo(prizeInfo)
+      setShowPopup(true)
+    } catch (error) {
+      console.error(error)
     }
-    
-    setShowPopup(true)
   }
 
-  const onChoosePrizeImage = async (filePath: string) => {
-    if (editPrizeInfo) {
-      editPrizeInfo.prizeImage = filePath;
-      setEditPrizeInfo({...editPrizeInfo});
-      console.log('cloudPath', `lucky/${activityId}/${editPrizeInfo.prizeId}.jpg`)
-      const result = await Taro.shareCloud.uploadFile({
-        cloudPath: `lucky/${activityId}/${editPrizeInfo.prizeId}.jpg`, // 以用户的 OpenID 作为存储路径
-        filePath: filePath,
-      });
-      console.log(result)
-    }
-    // form.setFieldsValue({prizeImage: filePath})
+  const onChoosePrizeImage = async (localFilePath: string) => {
+    if (!editPrizeInfo) return
+    Taro.showLoading()
+    setlocalImage(localFilePath)
+    console.log({localFilePath})
+    const result: any = await Taro.shareCloud.uploadFile({
+      cloudPath: `lucky/${activityId}/${editPrizeInfo.key}.jpg`, // 以用户的 OpenID 作为存储路径
+      filePath: localFilePath,
+    });
+    editPrizeInfo.prizeImage = result.fileID
+    Taro.hideLoading()
+    setEditPrizeInfo(editPrizeInfo);
   }
 
-  const onConfirmAddPrize = (values) => {
-    const prizeInfo = values;
-    prizeInfo.prizeImage = editPrizeInfo?.prizeImage;
-    prizeInfo.id = editPrizeInfo?.prizeId;
-    prizeList.push(prizeInfo);
-    console.log({prizeInfo})
-    setPrizeList([...prizeList])
+  const onConfirmAddPrize = async (values) => {
+    setSaveLoaing(true)
+    const payload = {...values, isSpecial: isEditSpecial}
+    if (editPrizeInfo?.prizeImage) {
+      if (editPrizeInfo?.prizeImage.includes('cloud:')) {
+        payload.prizeImage = editPrizeInfo?.prizeImage
+      }
+    }
+    if (!payload.id) {
+      payload.offerNum = 0;
+    }
+    await submitAwardConfig(payload);
     setShowPopup(false)
+    setSaveLoaing(false)
+    getPrizeList()
   } 
 
-  const submitAwardConfig = async () => {
+  const submitAwardConfig = async (payload: any) => {
     try {
-      const res = await updateAwardConfig(activityId, editPrizeInfo);
+      const res = await updateAwardConfig(activityId, payload);
       if (res) {
         Taro.showToast({
-          title: '更新奖品信息成功'
+          title: '更新成功'
         })
       }
     } catch (error) {
@@ -142,15 +187,30 @@ export default function AwardConfig() {
     }
   }
 
+  const onDeleteAward = async (id: any) => {
+    try {
+      Taro.showModal({
+        title: "确定删除吗",
+        success: async () => {
+          const res: any = await deleteAward(id);
+          if (res) {
+            Taro.showToast({
+              title: '删除成功'
+            });
+            getPrizeList()
+          }
+        }
+      })
+    } catch (error) {
+      Taro.showModal({
+        content: JSON.stringify(error)
+      })
+    }
+  }
+
   return (
     <View className='award-container'>
-      <div className='info-section'>
-        <p>
-          <span>{activityInfo.activityName}</span>
-          <span className={`activity-status status-${activityInfo.status}`}>{ACTIVITY_STATUS_MAP[`${activityInfo.status}`]}</span>
-        </p>
-      </div>
-      <Divider contentPosition="left">奖品配置</Divider>
+      <Divider contentPosition="left">{activityInfo.activityName}<span className={`activity-status status-${activityInfo.status}`}>{ACTIVITY_STATUS_MAP[`${activityInfo.status}`]}</span></Divider>
       <Table columns={columnsStickLeft} data={prizeList} noData={<EmptyContent />}></Table>
       {/* <Button className='add-prize-btn' onClick={() => onEditPrize()} icon={<Plus />}>添加奖品</Button> */}
       {
@@ -170,6 +230,9 @@ export default function AwardConfig() {
         position="bottom"
         lockScroll
         onClose={() => {
+          form.resetFields()
+          setlocalImage('')
+          setIsEditSpecial(false) 
           setShowPopup(false)
         }}
         >
@@ -200,51 +263,66 @@ export default function AwardConfig() {
             name="prizeImage"
           >
             {
-              editPrizeInfo?.prizeImage ? 
-              <Image width="80" height="80" src={editPrizeInfo?.prizeImage} />
-              : 
-              <div style={{ width: 98 }} onClick={() => {
-                Taro.chooseImage({
-                  count: 1, // 默认9
-                  sizeType: ['original', 'compressed'], // 可以指定是原图还是压缩图，默认二者都有
-                  sourceType: ['album', 'camera'], // 可以指定来源是相册还是相机，默认二者都有，在H5浏览器端支持使用 `user` 和 `environment`分别指定为前后摄像头
-                  success: async function (res) {
-                    // 返回选定照片的本地文件路径列表，tempFilePath可以作为img标签的src属性显示图片
-                    const filePath = res.tempFilePaths[0];
-                    onChoosePrizeImage(filePath)
-                  }
-                })
-              }} >
-                <Image width="80" height="80" />
-                <View style={{width: 80, marginTop: 5, textAlign: 'center', color: '#999'}}>默认</View>
+                <div style={{ width: 98 }} className='local-image-preview'onClick={() => {
+                  Taro.chooseImage({
+                    count: 1, // 默认9
+                    sizeType: ['original', 'compressed'], // 可以指定是原图还是压缩图，默认二者都有
+                    sourceType: ['album', 'camera'], // 可以指定来源是相册还是相机，默认二者都有，在H5浏览器端支持使用 `user` 和 `environment`分别指定为前后摄像头
+                    success: async function (res) {
+                      // 返回选定照片的本地文件路径列表，tempFilePath可以作为img标签的src属性显示图片
+                      const localFilePath = res.tempFilePaths[0];
+                      onChoosePrizeImage(localFilePath)
+                    }
+                  })
+                }} >
+                  { 
+                  localImage ? <div>
+                      <Image src={localImage} width={98} height={98} />
+                      <Edit onClick={() => setlocalImage('')} className='edit-icon' />
+                    </div>
+                    :
+                  <div style={{ width: 98, height: 98 }} className='image-placeholder' >
+                    <span>默认</span>
+                  </div>
+                }
               </div>
             }
           </Form.Item>
           <Form.Item
             label="奖品数量"
             required
-            name="prizeNum"
+            name="totalNum"
             rules={[
               { required: true, message: '请输入奖品数量' },
             ]}
           >
-            <InputNumber  
-              className="nut-input-text"
-              defaultValue={1} 
-            />
+             {/* <ConfigProvider theme={{nutuiInputnumberButtonWidth: '30px',
+                  nutuiInputnumberButtonHeight: '30px',
+                  nutuiInputnumberButtonBorderRadius: '2px',
+                  nutuiInputnumberButtonBackgroundColor: `#f4f4f4`,
+                  nutuiInputnumberInputHeight: '30px',
+                  nutuiInputnumberInputMargin: '0 2px'}}> */}
+                <InputNumber  
+                  className="nut-input-text prize-num-input"
+                  defaultValue={1} 
+                  min={editPrizeInfo ? (editPrizeInfo.offerNum) : 1}
+                />
+             {/* </ConfigProvider> */}
           </Form.Item>
           <Form.Item
             label="中奖概率"
             required
             name="probability"
           >
-            <Range max={100} min={0} />
+            <Range max={100} currentDescription={(value) => `${value}%`} min={0} />
           </Form.Item>
           <Form.Item
-            label="是否是特殊奖池"
+            label="进特殊奖池"
             name="isSpecial"
           >
-            <Switch />
+            <Switch checked={isEditSpecial} onChange={(v) => {
+              setIsEditSpecial(v)
+            }} />
           </Form.Item>
         </Form>
       </Popup>

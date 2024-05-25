@@ -8,6 +8,13 @@
     "miniprogram": {
       "list": [
         {
+          "name": "中奖记录",
+          "pathName": "pages/awardHistory/index",
+          "query": "",
+          "launchMode": "default",
+          "scene": null
+        },
+        {
           "name": "奖品配置",
           "pathName": "pages/admin/awardConfig/index",
           "query": "activityId=318e0c7e664ca40f01510f0732d2f5e9",

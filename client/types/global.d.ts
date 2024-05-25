@@ -20,6 +20,6 @@ declare namespace NodeJS {
 declare module '@tarojs/taro' {
   interface TaroStatic {
     shareCloud?: any
-    getCloud: () => any
+    initCloud: () => any
   }
 }

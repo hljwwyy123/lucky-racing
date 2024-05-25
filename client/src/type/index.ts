@@ -1,9 +1,11 @@
 export type IPrize = {
+  _id?: string
   key: string
-  prizeId: string
   prizeName: string
   prizeImage?: string
-  prizeNum: number
+  prizeImagePreview?: string
+  totalNum: number
+  offerNum: number
   probability: any
   isSpecial?: boolean
 }
@@ -17,4 +19,5 @@ export interface TableColumnProps {
   render?: (rowData: any, rowIndex: number) => string | React.ReactNode
   fixed?: 'left' | 'right'
   width?: number
+  action?: any
 }

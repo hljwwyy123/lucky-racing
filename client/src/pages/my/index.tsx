@@ -24,7 +24,7 @@ export default function Mine() {
         onClick={() => Taro.navigateTo({url: '/pages/awardHistory/index'})}
         title={<div style={{ display: 'inline-flex', alignItems: 'center' }}>
         <List />
-          <span style={{ marginLeft: '5px' }}>历史数据</span>
+          <span style={{ marginLeft: '5px' }}>中奖记录</span>
         </div>}
       />
       <div className='section-title'>管理员配置</div>

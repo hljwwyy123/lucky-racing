@@ -9,7 +9,7 @@ class App extends Component<PropsWithChildren>  {
     // this.cloud = null;
     if (process.env.TARO_ENV === 'weapp') {
       console.log('initCloud >>> ')
-      Taro.getCloud = getTaroCloud
+      Taro.initCloud = getTaroCloud
       await initCloud()
     }
   }

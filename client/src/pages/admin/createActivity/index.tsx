@@ -41,7 +41,7 @@ export default function CreateActivity() {
 
   const getData = async (id: string) => {
     Taro.showLoading()
-    await Taro.getCloud();
+    await Taro.initCloud();
     const activityInfo: any = await getActivityInfo(id)
     setActivityInfo(activityInfo);
     form.setFieldsValue({ beginTime: activityInfo.beginTime})
