@@ -3,7 +3,7 @@ import Taro, { useRouter } from '@tarojs/taro'
 import { View } from '@tarojs/components'
 import { Grid, Cell } from "@nutui/nutui-react-taro"
 import { Comment, List, Flag, Coupon, Notice, ArrowRight } from '@nutui/icons-react-taro'
-import {  getOpenId } from '../../../utils'
+import { getBookInfo } from '../../../api/award'
 import EmptyContent from '../../../components/EmptyContent'
 import './my.less'
 
@@ -20,9 +20,15 @@ export default function Mine() {
     const { params } = router as { params: Params };
     const { activityId = '' } = params;
     setActivityId(activityId);
-    getOpenId().then(res => setOpenId(res));
-
+    getDataList();
   }, []);
+
+  const getDataList = async () => {
+    const { params } = router as { params: Params };
+    const { activityId = '' } = params;
+    const res = await getBookInfo(activityId)
+    console.log(res)
+  }
 
   if (!activityId) {
     return <EmptyContent text={`活动： ${activityId} 还没有人报名`} />

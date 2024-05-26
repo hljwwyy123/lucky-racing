@@ -33,3 +33,46 @@ export async function deleteAward(id: string) {
     });
     return res
 }
+
+export async function getRemainTimes(activityId: string) {
+    const res: any = await Taro.shareCloud.callFunction({
+        name: 'lucky_get_lottery_remain_time',
+        data: {
+            activityId
+        }
+    });
+    return res
+}
+
+export async function getBookInfo(activityId: string) {
+    const res: any = await Taro.shareCloud.callFunction({
+        name: 'lucky_get_book_lottery_info',
+        data: {
+            activityId
+        }
+    });
+    return res
+}
+
+export async function bookLottery(activityId: string, payload: any) {
+    const res: any = await Taro.shareCloud.callFunction({
+        name: 'lucky_book_lottery',
+        data: {
+            activityId,
+            ...payload
+        }
+    });
+    return res
+}
+
+export async function approveBooking(activityId: string, approve: boolean, unionId: string) {
+    const res: any = await Taro.shareCloud.callFunction({
+        name: 'lucky_approve_book_lottery',
+        data: {
+            activityId,
+            unionId,
+            approve
+        }
+    });
+    return res
+}

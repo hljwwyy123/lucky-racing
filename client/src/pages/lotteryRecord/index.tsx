@@ -1,6 +1,7 @@
 import Taro, { useRouter } from '@tarojs/taro'
 import { useEffect, useState } from 'react'
-import { Divider } from "@nutui/nutui-react-taro"
+import moment from "moment"
+import { Divider, Cell } from "@nutui/nutui-react-taro"
 import "./awardrecord.less"
 
 interface RouterParams {
@@ -33,10 +34,10 @@ export default function LotteryRecord() {
     return <div className='award-record-container'>
           <Divider contentPosition="left">中奖记录</Divider>
           {
-              awardRecordList.map((el: any) => <div className='record-item'>
-                  <span>{el.prizeName}</span>
-                  <span>{el.unionId}</span>
-              </div>)
+              awardRecordList.map((el: any) => <Cell className='record-item' 
+                title={el.unionId} description={moment(el.createdAt).format('YYYY-MM-DD HH:mm:ss')} 
+                extra={el.prizeName}>
+              </Cell>)
           }
     </div>  
 }

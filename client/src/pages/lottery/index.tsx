@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from 'react'
 import { Divider, NoticeBar } from "@nutui/nutui-react-taro"
 import LuckyWheel from '@lucky-canvas/taro/react/LuckyWheel'
 import { getActivityInfo } from '../../api/activity'
-import { getAwardInfo } from '../../api/award'
+import { getAwardInfo, getRemainTimes } from '../../api/award'
 import { ACTIVITY_STATUS } from '../../constants/activity'
 import debounce from "lodash.debounce"
 import "./lottery.less"
@@ -80,6 +80,7 @@ export default function Lottery() {
             });
             return
         }
+        console.log({activityInfo})
         setActivityInfo(activityInfo);
         const awardList = await getAwardInfo(activityId)
         awardList.forEach((el: any, index: number) => {
@@ -147,25 +148,23 @@ export default function Lottery() {
     }
 
     const doDraw = debounce(async () => {
-        console.log('dodraw ++++', _drawing, drawing)
-        // return;
         try {
-            if (remainTimes <=0 ) {
-                Taro.showToast({
-                    title: "抽奖次数已用完~"
-                })
-                return
-            }
             if (_drawing) {
                 console.log('is drawing return !')
                 return null;
             } 
-            console.log({_drawing})
             _drawing = true;
             setDrawing(true)
             if (activityInfo.status === ACTIVITY_STATUS.NOT_BEGIN) {
                 Taro.showToast({
                     title: "活动还未开始"
+                })
+                return
+            }
+            // const _remainTimes = await getRemainTimes(activityId)
+            if (remainTimes <=0 ) {
+                Taro.showToast({
+                    title: "抽奖次数已用完~"
                 })
                 return
             }
@@ -188,7 +187,6 @@ export default function Lottery() {
                 setTimeout(() => {
                     lotteryRef.current.stop(awardIndex);
                 }, 3000);
-                console.log({remainTimes})
                 setRemainTimes(remainTimes-1)
             } else {
                 if (result?.errorMsg){
@@ -275,10 +273,22 @@ export default function Lottery() {
                         closeable={false} 
                     />
                 }
-                {/* <span className='record-link' onClick={() => Taro.navigateTo({url: "/pages/lotteryRecord/index?activityId="+activityId})}>中奖记录》</span> */}
              </div>
             :(fetchingData ? null : <div className='empty-tip'>敬请期待哦~</div>)
         }
+        {
+            !!awardRecordList.length && <span className='record-link' onClick={() => Taro.navigateTo({url: "/pages/lotteryRecord/index?activityId="+activityId})}>中奖记录》</span>
+        }
+        <div className='award-rules-container'>
+            <h2>抽奖规则</h2>
+            <ul>
+                {
+                    activityInfo?.rules?.map((el: any) => <li className='rule-item'>
+                        {el}
+                    </li>)
+                }
+            </ul>
+        </div>
         </div>
     </div>
 }
