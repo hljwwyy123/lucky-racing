@@ -25,9 +25,36 @@ Page { background-color: rgb(253 118 11) }
             background: url('https://img2.imgtp.com/2024/05/26/rc2qBkiy.png') no-repeat;
             height: 297px;
             background-size: 100% 100%;
+            .draw-times-tip{
+                position: absolute;
+                bottom: 56px;
+                left: 0;
+                width: 100%;
+                text-align: center;
+                color: white;
+                font-size: 24px;
+            }
+        }
+        .record-notice{
+            position: absolute;
+            top: 960px;
+            width: 90%;
+            left: 5%;
+            .nut-noticebar-vertical{
+                background-color: rgba(0,0,0,0.2);
+                color: white;
+                border-radius: 4px;
+            }
+        }
+        .record-link {
+            position: relative;
+            top: 250px;
+            width: 100%;
+            color: white;
+            text-align: center;
         }
     }
-    .activity-btn {
+    .join-activity-btn {
         background: url('https://img2.imgtp.com/2024/05/26/ZO7kzZKA.png') no-repeat;
         background-size: 100% 100%;
         width: 100%;
@@ -37,4 +64,13 @@ Page { background-color: rgb(253 118 11) }
         font-weight: 500;
         text-align: center;
     }
+    .empty-tip{
+        width: 100%;
+        text-align: center;
+        color: white;
+        font-weight: bold;
+        font-size: 60px;
+        line-height: 40vh;
+    }
+    
 }

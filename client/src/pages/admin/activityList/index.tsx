@@ -18,10 +18,12 @@ export default function ActivityList() {
   useShareAppMessage((res) => {
     let sharePath = "";
     let shareTitle = "上官喊你来抽奖啦~";
+    let imageUrl = ''
     if (res.from === 'button') {
         // 来自页面内分享按钮
         shareTitle = shareActivityInfo.activityName;
-        sharePath = '/pages/admin/awardConfig/index?activityId=' + shareActivityInfo?._id; // 分享卡片的小程序路径
+        sharePath = '/pages/lottery/index?activityId=' + shareActivityInfo?._id; // 分享卡片的小程序路径
+        imageUrl = 'https://img2.imgtp.com/2024/05/26/shex3OcZ.png';
     } else {
         // 右上角分享好友
         sharePath = '/pages/index/index'
@@ -29,8 +31,8 @@ export default function ActivityList() {
 
     return {
         title: shareTitle, // 分享卡片的title
-        path: sharePath
-        // imageUrl: '' // 分享卡片的图片链接
+        path: sharePath,
+        imageUrl: imageUrl // 分享卡片的图片链接
     };
   })
   
