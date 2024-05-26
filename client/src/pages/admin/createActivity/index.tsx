@@ -109,6 +109,7 @@ export default function CreateActivity() {
           <Input
             className="nut-input-text"
             placeholder="比如300排量组，600排量组，随意起"
+            maxLength={11}
             type="text"
           />
         </Form.Item>

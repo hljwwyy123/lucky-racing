@@ -8,6 +8,7 @@ export default {
     'pages/admin/approve/index',
     'pages/admin/awardConfig/index',
     'pages/admin/createActivity/index',
+    'pages/lottery/index'
   ],
   window: {
     backgroundTextStyle: 'light',

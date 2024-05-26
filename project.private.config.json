@@ -8,6 +8,13 @@
     "miniprogram": {
       "list": [
         {
+          "name": "抽奖转盘",
+          "pathName": "pages/lottery/index",
+          "query": "activityId=318e0c7e664ca40f01510f0732d2f5e9",
+          "launchMode": "default",
+          "scene": null
+        },
+        {
           "name": "中奖记录",
           "pathName": "pages/awardHistory/index",
           "query": "",
