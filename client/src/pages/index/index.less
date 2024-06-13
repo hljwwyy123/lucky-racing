@@ -1,0 +1,61 @@
+.activity-list-container {
+    .activity-item {
+        position: relative;
+        // background: url('https://img.picui.cn/free/2024/06/12/6669acb8443eb.png') no-repeat;
+        width: 100%;
+        // height: 223px;
+        background-size: 100% !important;
+        background-position: center;
+        background-repeat: no-repeat !important;
+        width: 90%;
+        padding: 20px 10px;
+        margin: 0 auto 24px auto;
+        min-height: 160px;
+        border-radius: 8px;
+        .button-line{
+            position: relative;
+            top: 50px;
+            display: flex;
+            justify-content: center;
+            width: 100%;
+            text-align: center;
+        }
+        .status-corner{
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 0;
+            height: 0;  
+            border-top: 80px solid #F44336;
+            border-left: 120px solid transparent;
+            &.status-0 {
+                border-top-color: #FFC107;
+            }
+            &.status-1 {
+                border-top-color: #4CAF50;
+            }
+            &.status-2 {
+                border-top-color: #F44336;
+            }
+            &.status-3 {
+                border-top-color: #9E9E9E;
+            }
+            .status-text {
+                position: absolute;
+                top: -72px;
+                left: -65px;
+                font-size: 20px;
+                color: white;
+                white-space: nowrap;
+            }
+        }
+        .activity_name{
+            position: relative;
+            top: 30px;
+            font-size: 32px;
+            text-align: center;
+            color: white;
+            font-weight: 500;
+        }
+    }
+}

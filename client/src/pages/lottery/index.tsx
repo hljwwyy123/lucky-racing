@@ -1,6 +1,6 @@
 import Taro, { useRouter, useShareAppMessage } from '@tarojs/taro'
 import { useEffect, useRef, useState } from 'react'
-import { Divider, NoticeBar } from "@nutui/nutui-react-taro"
+import { NoticeBar } from "@nutui/nutui-react-taro"
 import LuckyWheel from '@lucky-canvas/taro/react/LuckyWheel'
 import { getActivityInfo } from '../../api/activity'
 import { getAwardInfo, getRemainTimes } from '../../api/award'
@@ -62,7 +62,6 @@ export default function Lottery() {
 
     const getPrizeList = async () => {
         Taro.showLoading()
-        setFetching(true)
         const { params } = router as { params: RouterParams };
         const { activityId = '' } = params;
         if (!activityId) {
@@ -71,16 +70,18 @@ export default function Lottery() {
             })
             return
         }
+        setFetching(true)
         setActivityId(activityId)
         await Taro.initCloud();
         const activityInfo = await getActivityInfo(activityId)
-        if (activityInfo.status > ACTIVITY_STATUS.CLOSED) {
+        if (activityInfo.status > ACTIVITY_STATUS.ENDED) {
             Taro.showModal({
                 content: '活动已结束'
             });
+            setFetching(false)
             return
         }
-        console.log({activityInfo})
+        
         setActivityInfo(activityInfo);
         const awardList = await getAwardInfo(activityId)
         awardList.forEach((el: any, index: number) => {
@@ -274,21 +275,26 @@ export default function Lottery() {
                     />
                 }
              </div>
-            :(fetchingData ? null : <div className='empty-tip'>敬请期待哦~</div>)
+            :(fetchingData ? null : <div className='empty-tip'>
+                {activityInfo?.status >= ACTIVITY_STATUS.ENDED ? "活动已结束" : "敬请期待哦~"}
+            </div>)
         }
         {
             !!awardRecordList.length && <span className='record-link' onClick={() => Taro.navigateTo({url: "/pages/lotteryRecord/index?activityId="+activityId})}>中奖记录》</span>
         }
-        <div className='award-rules-container'>
-            <h2>抽奖规则</h2>
-            <ul>
-                {
-                    activityInfo?.rules?.map((el: any) => <li className='rule-item'>
-                        {el}
-                    </li>)
-                }
-            </ul>
-        </div>
+        {
+            !!activityInfo?.rules?.length &&
+            <div className='award-rules-container'>
+                <h2>抽奖规则</h2>
+                <ul>
+                    {
+                        activityInfo?.rules?.map((el: any) => <li className='rule-item'>
+                            {el}
+                        </li>)
+                    }
+                </ul>
+            </div>
+        }
         </div>
     </div>
 }
