@@ -2,7 +2,8 @@
   "description": "项目私有配置文件。此文件中的内容将覆盖 project.config.json 中的相同字段。项目的改动优先同步到此文件中。详见文档：https://developers.weixin.qq.com/miniprogram/dev/devtools/projectconfig.html",
   "projectname": "lucky-racing",
   "setting": {
-    "compileHotReLoad": true
+    "compileHotReLoad": true,
+    "urlCheck": true
   },
   "condition": {
     "miniprogram": {
@@ -10,7 +11,14 @@
         {
           "name": "抽奖转盘",
           "pathName": "pages/lottery/index",
-          "query": "activityId=318e0c7e664ca40f01510f0732d2f5e9",
+          "query": "activityId=880c3388664ca3cc014f835d0d988dd7",
+          "launchMode": "default",
+          "scene": null
+        },
+        {
+          "name": "抽奖预约",
+          "pathName": "pages/bookLottery/index",
+          "query": "activityId=880c3388664ca3cc014f835d0d988dd7",
           "launchMode": "default",
           "scene": null
         },

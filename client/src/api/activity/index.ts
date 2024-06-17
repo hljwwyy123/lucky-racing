@@ -13,6 +13,16 @@ export async function getActivityInfo(id: string) {
   return activityInfo
 }
 
+export async function getActivityJoinInfo(activityId: string) {
+  const res: any = await Taro.shareCloud.callFunction({
+    name: 'lucky_get_lottery_join_info',
+    data: { activityId }
+  });
+  const { result: { data = []} } = res;
+  const joinInfo = data[0];
+  return joinInfo
+}
+
 export function getActivityStatus(activity) {
   if (!activity) return;
   const now = new Date();

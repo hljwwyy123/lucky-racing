@@ -1,6 +1,28 @@
-import moment from "moment";
 import Taro from "@tarojs/taro"
-import { REAL_SCORE_ITEM } from "../type";
+
+export async function getOpenIdAndUnion () {
+    let _openId = Taro.getStorageSync("openId");
+    let _unionId = Taro.getStorageSync("unionId");
+    if (!_openId) {
+        console.log('call cloud fuction >>> login')
+        const res: any = await Taro.shareCloud.callFunction({
+            name: 'login'
+        });
+        _openId = res.result.openid
+        _unionId = res.result.unionId
+        Taro.setStorageSync("openId", _openId)
+        Taro.setStorageSync("unionId", _unionId)
+        return {
+            openId: _openId,
+            unionId: _unionId
+        }
+    } else {
+        return {
+            openId: _openId,
+            unionId: _unionId
+        }
+    }
+}
 
 export async function getOpenId () {
     let _openId = Taro.getStorageSync("openId");
@@ -22,7 +44,7 @@ export async function getUnionId () {
         const res: any = await Taro.shareCloud.callFunction({
             name: 'login'
         });
-        _unionId = res.result.openid
+        _unionId = res.result.unionId
         Taro.setStorageSync("unionId", _unionId)
     }
     return _unionId
@@ -97,3 +119,37 @@ export function formatMilliseconds(milliseconds) {
 
     return result;
 }
+
+export function decodeMillseconds(formattedTime: string) {
+    const regex = /^(\d+)'(\d{1,2})\.(\d{1,3})$/;
+    const match = formattedTime.match(regex);
+    
+    if (!match) {
+        throw new Error('Invalid formatted time');
+    }
+    
+    const minutes = parseInt(match[1], 10);
+    const seconds = parseInt(match[2], 10);
+    const milliseconds = parseInt(match[3], 10);
+    
+    return (minutes * 60 * 1000) + (seconds * 1000) + milliseconds;
+} 
+
+// 字符串加密
+export function toCode (str) {  //加密字符串
+    //定义密钥，36个字母和数字
+    var key = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    var len = key.length;  //获取密钥的长度
+    var a = key.split("");  //把密钥字符串转换为字符数组
+    var s = "",b, b1, b2, b3;  //定义临时变量
+    for (var i = 0; i <str.length; i ++) {  //遍历字符串
+        b = str.charCodeAt(i);  //逐个提取每个字符，并获取Unicode编码值
+        b1 = b % len;  //求Unicode编码值得余数
+        b = (b - b1) / len;  //求最大倍数
+        b2 = b % len;  //求最大倍数的于是
+        b = (b - b2) / len;  //求最大倍数
+        b3 = b % len;  //求最大倍数的余数
+        s += a[b3] + a[b2] + a[b1];  //根据余数值映射到密钥中对应下标位置的字符
+    }
+    return s;  //返回这些映射的字符
+  }

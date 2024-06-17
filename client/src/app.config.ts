@@ -9,7 +9,9 @@ export default {
     'pages/admin/awardConfig/index',
     'pages/admin/createActivity/index',
     'pages/lottery/index',
+    'pages/activityJoin/index',
     'pages/lotteryRecord/index',
+    'pages/bookLottery/index',
   ],
   window: {
     backgroundTextStyle: 'light',
@@ -20,9 +22,9 @@ export default {
   cloud: true,
   tabBar: {
     // custom: true,
-    color: '#fff',
+    color: '#333',
     selectedColor: '#f53d4d',
-    backgroundColor: '#1f232d',
+    // backgroundColor: '#1f232d',
     list: [
       {
         pagePath: 'pages/index/index',

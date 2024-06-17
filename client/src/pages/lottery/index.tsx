@@ -2,7 +2,7 @@ import Taro, { useRouter, useShareAppMessage } from '@tarojs/taro'
 import { useEffect, useRef, useState } from 'react'
 import { NoticeBar } from "@nutui/nutui-react-taro"
 import LuckyWheel from '@lucky-canvas/taro/react/LuckyWheel'
-import { getActivityInfo } from '../../api/activity'
+import { getActivityInfo, getActivityJoinInfo } from '../../api/activity'
 import { getAwardInfo, getRemainTimes } from '../../api/award'
 import { ACTIVITY_STATUS } from '../../constants/activity'
 import debounce from "lodash.debounce"
@@ -35,6 +35,7 @@ export default function Lottery() {
     const [prizeList, setPrizeList] = useState<any[]>([]);
     const [activityId, setActivityId] = useState<string>('');
     const [fetchingData, setFetching] = useState<boolean>(false)
+    const [joinInfo, setJoinInfo] = useState<any>();
     const [drawing, setDrawing] = useState<boolean>(false);
     const [awardRecordList, setAwardRecordList] = useState<any[]>([]);
     const [drawBtn, setDrawBtn] = useState<any>([{
@@ -49,16 +50,30 @@ export default function Lottery() {
 
     const lotteryRef = useRef<any>();
 
-    useEffect(() => {
-        getPrizeList()
-    },[]);
-
     useShareAppMessage((res) => {
         return {
             title: activityInfo.activityName,
             path: '/pages/lottery/index?activityId='+activityId
         };
-    })
+    });
+
+    useEffect(() => {
+        const { params } = router as { params: RouterParams };
+        const { activityId = '' } = params;
+        setActivityId(activityId)
+        getPrizeList()
+        getJoinInfo();
+    },[]);
+
+    const getJoinInfo = async () => {
+        const { params } = router as { params: RouterParams };
+        const { activityId = '' } = params;
+        await Taro.initCloud();
+        const joinInfo = await getActivityJoinInfo(activityId)
+        console.log({joinInfo})
+        setJoinInfo(joinInfo)
+    }
+
 
     const getPrizeList = async () => {
         Taro.showLoading()
@@ -156,8 +171,16 @@ export default function Lottery() {
             } 
             _drawing = true;
             setDrawing(true)
+            if (!joinInfo) {
+                Taro.showToast({
+                    icon: 'none',
+                    title: "先报名参加活动哦~"
+                })
+                return
+            }
             if (activityInfo.status === ACTIVITY_STATUS.NOT_BEGIN) {
                 Taro.showToast({
+                    icon: 'none',
                     title: "活动还未开始"
                 })
                 return
@@ -165,6 +188,7 @@ export default function Lottery() {
             // const _remainTimes = await getRemainTimes(activityId)
             if (remainTimes <=0 ) {
                 Taro.showToast({
+                    icon: 'none',
                     title: "抽奖次数已用完~"
                 })
                 return
@@ -217,8 +241,8 @@ export default function Lottery() {
 
 
     const bookActivity = () => {
-        Taro.showToast({
-            title: "预约活动"
+        Taro.navigateTo({
+            url: `/pages/bookLottery/index?activityId=${activityId}`
         })
     }
 
@@ -257,10 +281,6 @@ export default function Lottery() {
                 </div>
                 
                 {
-                    activityInfo.status === ACTIVITY_STATUS.NOT_BEGIN &&
-                    <div className='join-activity-btn' onClick={bookActivity}>报名抽奖</div>
-                }
-                {
                     activityInfo.status >= ACTIVITY_STATUS.NOT_BEGIN && 
                     <NoticeBar className='record-notice' direction="vertical"
                         leftIcon={null}
@@ -278,6 +298,14 @@ export default function Lottery() {
             :(fetchingData ? null : <div className='empty-tip'>
                 {activityInfo?.status >= ACTIVITY_STATUS.ENDED ? "活动已结束" : "敬请期待哦~"}
             </div>)
+        }
+        {
+            activityInfo.status === ACTIVITY_STATUS.NOT_BEGIN && !joinInfo && 
+            <div className='join-activity-btn' onClick={bookActivity}>报名抽奖</div>
+        }
+        {
+            joinInfo &&
+            <div className='join-activity-btn' onClick={() => Taro.navigateTo({url: "/pages/activityJoin/index?activityId="+activityId})}>报名记录</div>
         }
         {
             !!awardRecordList.length && <span className='record-link' onClick={() => Taro.navigateTo({url: "/pages/lotteryRecord/index?activityId="+activityId})}>中奖记录》</span>
