@@ -1,7 +1,8 @@
 import Taro, { useRouter } from '@tarojs/taro'
 import { useEffect, useState } from 'react'
 import classnames from "classnames"
-import { Image, Swipe, Button } from "@nutui/nutui-react-taro"
+import { Image, Swipe, Button, Checkbox } from "@nutui/nutui-react-taro"
+import { Checklist } from '@nutui/icons-react-taro'
 import { formatMilliseconds, getIsAdmin } from '../../utils'
 import "./awardrecord.less"
 
@@ -73,12 +74,12 @@ export default function LotteryRecord() {
                         </Button>
                       }
                     disabled={!isAdmin}>
-                    <div className={classnames('table-row')}>
+                    <div className={classnames('table-row',{'passed': record.isPass !== undefined && record.isPass, 'no-passed': record.isPass !== undefined && !record.isPass, 'no-status': record.isPass == undefined })}>
                         <div className='noth-cell'>
-                            <div className={`noth`}>
-                                <span>{no + 1}</span>
-                            </div>
+                            <Checkbox checked={record.isPass} disabled={record.isPass !== undefined && !record.isPass} />
+                            <span>{no + 1}</span>
                         </div>
+
                         <div className={classnames('user-cell', {'passed': record.isPass !== undefined && record.isPass, 'no-passed': record.isPass !== undefined && !record.isPass, 'no-status': record.isPass == undefined })} >
                             <Image className='item-avatar' src={record.avatar || DEFAULT_AVATAR} width={30} height={30} radius={"50%"} />
                             <div className='item-name'>

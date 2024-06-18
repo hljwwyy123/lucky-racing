@@ -38,6 +38,9 @@ Page {background-color: #f7f8fa;}
             // text-indent: 40px;
         }
     }
+    .nut-checkbox-icon-checked {
+        color: green
+    }
     .table-row {
         display: flex;
         align-items: center;
@@ -46,8 +49,10 @@ Page {background-color: #f7f8fa;}
         background: white;
         justify-content: space-between;
         .noth-cell {
+            display: flex;
+            align-items: center;
             width: 90px;
-            text-indent: 30px;
+            justify-content: center;
         }
         .user-cell {
             display: flex;
@@ -67,16 +72,11 @@ Page {background-color: #f7f8fa;}
                 text-overflow: ellipsis;
                 padding: 0 6px;
             }
-            &.passed {
-                background-color: greenyellow;
-            }
-            &.no-passed {
-                background-color: red;
-            }
-            &.no-status {
-                background-color: yellow;
-            }
+           
         }
+        
+        
+         
         .seed-cell {
             width: 80px;
             text-align: center;
