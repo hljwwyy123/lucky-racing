@@ -50,6 +50,20 @@ export async function getUnionId () {
     return _unionId
 }
 
+export async function getIsAdmin() {
+    let isAdmin = Taro.getStorageSync("isAdmin");
+    if ((isAdmin+'').length) {
+        return !!isAdmin
+    } else {
+        const res: any = await Taro.shareCloud.callFunction({
+            name: 'lucky_is_admin_user'
+        });
+        const flag = res.result;
+        Taro.setStorageSync("isAdmin", ~~flag)
+        return flag
+    }
+}
+
 export async  function initCloud() {
     const cloud = new Taro.cloud.Cloud({
         resourceAppid: 'wx98786041f7a0b60d',

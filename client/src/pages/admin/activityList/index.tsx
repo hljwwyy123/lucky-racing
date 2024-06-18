@@ -54,7 +54,6 @@ export default function ActivityList() {
 
   return (
     <View className='list-container'>
-      <div className='section-title'>抽奖活动列表</div>
       {
         list.map((el) => <Cell extra={<span className='extra-text' 
             onClick={() => Taro.navigateTo({url: '/pages/admin/awardConfig/index?activityId='+el._id})} >

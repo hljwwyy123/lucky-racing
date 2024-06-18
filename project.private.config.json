@@ -9,6 +9,13 @@
     "miniprogram": {
       "list": [
         {
+          "name": "报名审核",
+          "pathName": "pages/activityJoin/index",
+          "query": "activityId=880c3388664ca3cc014f835d0d988dd7",
+          "launchMode": "default",
+          "scene": null
+        },
+        {
           "name": "抽奖转盘",
           "pathName": "pages/lottery/index",
           "query": "activityId=880c3388664ca3cc014f835d0d988dd7",
