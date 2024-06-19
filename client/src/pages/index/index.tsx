@@ -29,7 +29,7 @@ export default function ActivityList() {
     result.data.forEach(d => {
       d.status = getActivityStatus(d)
     })
-    result.data[3].bannerImage = 'https://img.picui.cn/free/2024/06/13/666ae3e2ecec9.png'
+    result.data[3].bannerImage = 'https://img.alicdn.com/imgextra/i3/O1CN01kZW6ZO1PpfWsGi767_!!6000000001890-0-tps-1280-524.jpg'
     setList(result.data)
   }
 

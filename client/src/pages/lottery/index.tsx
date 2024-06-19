@@ -12,17 +12,23 @@ interface RouterParams {
     activityId?: string
 }
 
-const DRAW_BTN_IMAGE = 'https://img2.imgtp.com/2024/05/26/twmfKZ16.png';
+const DRAW_BTN_IMAGE = 'https://img.alicdn.com/imgextra/i3/O1CN01Bk2rxs1jC5cQfZDAg_!!6000000004511-2-tps-235-266.png';
 const DRAW_BTN_IMAGE_DISABLE= 'https://img2.imgtp.com/2024/05/26/rktUvZTE.png';
+const PRIZE_BLOCK_BG_1 = "#fee7e9"; // #fee7e9 #fbd6d5
+const PRIZE_BLOCK_BG_2 = "#ffffff";
+const PRIZE_BLOCK_TEXT = "#993f36"; // #ed6252
 
 const prizeListConfig = {
     blocks: [{
-        padding: '64rpx',
+        padding: '66rpx',
         imgs: [{
-            src: 'https://img2.imgtp.com/2024/05/26/tEyas91e.png',
+            // src: 'https://img.alicdn.com/imgextra/i1/O1CN01xy8Kkj1KmOc2bqD6G_!!6000000001206-2-tps-700-700.png',
+            src: 'https://img.alicdn.com/imgextra/i4/O1CN01oLKbOe1JZk3slDuQ2_!!6000000001043-2-tps-676-676.png',
+            // src: 'https://img.alicdn.com/imgextra/i1/O1CN01fpSNp91RszdUgogCX_!!6000000002168-2-tps-690-690.png',
             width: '100%',
             height: '100%',
-            rotate: true
+            rotate: true,
+            // top: '4'
         }]
     }],
 }
@@ -103,7 +109,7 @@ export default function Lottery() {
             el.fonts = [{
                 text: el.prizeName, 
                 fontSize: el.prizeImage ? "12px" : "22px", 
-                fontColor: "#ed6252", 
+                fontColor: PRIZE_BLOCK_TEXT,
                 top: '8%' 
             },{
                 text: `剩余:${el.totalNum - el.offerNum}`,
@@ -111,10 +117,11 @@ export default function Lottery() {
                 fontColor: "#aaa", 
                 top: '92%' 
             }];
-            el.background = index % 2 ? '#fbd6d5' : '#fff'
+            el.background = index % 2 ? PRIZE_BLOCK_BG_1 : PRIZE_BLOCK_BG_2
+
             if (el.prizeImage) {
                 el.imgs =  [{
-                    src: el.prizeImage || 'https://img2.imgtp.com/2024/05/26/MI4S1Kxe.png',
+                    src: el.prizeImage || 'https://img.alicdn.com/imgextra/i4/O1CN01w3w5w61edVFEfnnWL_!!6000000003894-2-tps-92-92.png',
                     width: '30%',
                     top: '30%'
                 }]
@@ -128,12 +135,12 @@ export default function Lottery() {
                 fonts: [{
                     text: "谢谢参与", 
                     fontSize: "14px", 
-                    fontColor: "#aaa", 
+                    fontColor: PRIZE_BLOCK_TEXT, 
                     top: '10%' 
                 }],
-                background: (awardList.length) % 2 ? '#fbd6d5' : '#fff',
+                background: (awardList.length) % 2 ? PRIZE_BLOCK_BG_1 : PRIZE_BLOCK_BG_2,
                 imgs: [{
-                    src: 'https://img2.imgtp.com/2024/05/26/MI4S1Kxe.png',
+                    src: 'https://img.alicdn.com/imgextra/i4/O1CN01w3w5w61edVFEfnnWL_!!6000000003894-2-tps-92-92.png',
                     width: '33%',
                     top: '40%'
                 }]
@@ -165,19 +172,29 @@ export default function Lottery() {
 
     const doDraw = debounce(async () => {
         try {
+            // lotteryRef?.current.play()
+            // setTimeout(() => {
+            //     lotteryRef.current.stop(1)
+            // }, 1500);
+            // return
             if (_drawing) {
-                console.log('is drawing return !')
+                console.log('current is drawing ~~~ !')
                 return null;
             } 
-            _drawing = true;
-            setDrawing(true)
             if (!joinInfo) {
                 Taro.showToast({
                     icon: 'none',
                     title: "先报名参加活动哦~"
                 })
                 return
+            } else if (!joinInfo.isPass){
+                Taro.showToast({
+                    icon: 'none',
+                    title: "您没有获得抽奖资格~"
+                })
+                return
             }
+
             if (activityInfo.status === ACTIVITY_STATUS.NOT_BEGIN) {
                 Taro.showToast({
                     icon: 'none',
@@ -189,10 +206,12 @@ export default function Lottery() {
             if (remainTimes <=0 ) {
                 Taro.showToast({
                     icon: 'none',
-                    title: "抽奖次数已用完~"
+                    title: "您已经抽过了~"
                 })
                 return
             }
+            _drawing = true;
+            setDrawing(true)
             Taro.showLoading()
             const res: any = await Taro.shareCloud.callFunction({
                 name: 'lucky_lottery',
@@ -277,7 +296,8 @@ export default function Lottery() {
                     }}
                 />
                 <div className='drawer-bottom'>
-                    <div className='draw-times-tip'>抽奖次数：{remainTimes}次</div>
+                    {/* <div className='draw-times-tip'>抽奖次数：{remainTimes}次</div> */}
+                    <div className='draw-times-tip'>{joinInfo ? (joinInfo.isPass ? "获得抽奖资格": "很遗憾没有获得抽奖资格"): ("报名通过") }</div>
                 </div>
                 
                 {
