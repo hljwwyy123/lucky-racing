@@ -2,8 +2,8 @@ import Taro, { useRouter } from '@tarojs/taro'
 import { useEffect, useState } from 'react'
 import classnames from "classnames"
 import { Image, Swipe, Button, Checkbox } from "@nutui/nutui-react-taro"
-import { Checklist } from '@nutui/icons-react-taro'
 import { formatMilliseconds, getIsAdmin } from '../../utils'
+import EmptyContent from '../../components/EmptyContent'
 import "./awardrecord.less"
 
 const DEFAULT_AVATAR = "https://img.alicdn.com/imgextra/i3/O1CN01Hso8lx1rexUYpctvl_!!6000000005657-2-tps-48-48.png"
@@ -60,7 +60,10 @@ export default function LotteryRecord() {
             <div className='th-score'>成绩</div>
             <div className='th-seed'>Seed</div>
             <div className='th-gmt'>成绩照片</div>
-            </div>
+        </div>
+            {
+                !awardRecordList.length && <EmptyContent text="还没有人报名" />
+            }
             {
                 awardRecordList.map((record, no) => <Swipe 
                     rightAction={

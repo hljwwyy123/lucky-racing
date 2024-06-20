@@ -1,10 +1,10 @@
 import Taro, { useRouter, useShareAppMessage } from '@tarojs/taro'
 import { useEffect, useRef, useState } from 'react'
-import { NoticeBar } from "@nutui/nutui-react-taro"
+import { Divider, NoticeBar, TextArea } from "@nutui/nutui-react-taro"
 import LuckyWheel from '@lucky-canvas/taro/react/LuckyWheel'
 import { getActivityInfo, getActivityJoinInfo } from '../../api/activity'
 import { getAwardInfo, getRemainTimes } from '../../api/award'
-import { ACTIVITY_STATUS } from '../../constants/activity'
+import { ACTIVITY_STATUS, ACTIVITY_STATUS_MAP } from '../../constants/activity'
 import debounce from "lodash.debounce"
 import "./lottery.less"
 
@@ -52,7 +52,6 @@ export default function Lottery() {
             top: '-130%'
         }]
     }]);
-    const [remainTimes, setRemainTimes] = useState<number>(1)
 
     const lotteryRef = useRef<any>();
 
@@ -102,7 +101,6 @@ export default function Lottery() {
             setFetching(false)
             return
         }
-        
         setActivityInfo(activityInfo);
         const awardList = await getAwardInfo(activityId)
         awardList.forEach((el: any, index: number) => {
@@ -172,11 +170,6 @@ export default function Lottery() {
 
     const doDraw = debounce(async () => {
         try {
-            // lotteryRef?.current.play()
-            // setTimeout(() => {
-            //     lotteryRef.current.stop(1)
-            // }, 1500);
-            // return
             if (_drawing) {
                 console.log('current is drawing ~~~ !')
                 return null;
@@ -184,7 +177,7 @@ export default function Lottery() {
             if (!joinInfo) {
                 Taro.showToast({
                     icon: 'none',
-                    title: "先报名参加活动哦~"
+                    title: activityInfo.status <= ACTIVITY_STATUS.NOT_BEGIN ? "先报名参加活动哦~" : "您没有报名参与，下次早点报名呦~"
                 })
                 return
             } else if (!joinInfo.isPass){
@@ -202,8 +195,8 @@ export default function Lottery() {
                 })
                 return
             }
-            // const _remainTimes = await getRemainTimes(activityId)
-            if (remainTimes <=0 ) {
+            const remainTimes = await getRemainTimes(activityId)
+            if (remainTimes <= 0 ) {
                 Taro.showToast({
                     icon: 'none',
                     title: "您已经抽过了~"
@@ -225,13 +218,12 @@ export default function Lottery() {
             if (result.prize) {
                 lotteryRef?.current.play()
                 // 调用抽奖组件的play方法开始游戏
-                // console.log(_awardList, result.prize.prizeId)
+                console.log(_awardList, result.prize.prizeId)
                 let awardIndex = _awardList.findIndex((el: any) => el._id === result.prize.prizeId)
-                // console.log({awardIndex})
+                console.log({awardIndex})
                 setTimeout(() => {
                     lotteryRef.current.stop(awardIndex);
                 }, 3000);
-                setRemainTimes(remainTimes-1)
             } else {
                 if (result?.errorMsg){
                     Taro.showModal({
@@ -239,13 +231,12 @@ export default function Lottery() {
                     }); 
                     setDrawing(false)
                     _drawing = false;
-                    // lotteryRef.current.stop(_awardList.length - 1)
+                    lotteryRef.current.stop(_awardList.length - 1)
                 } else {
                     lotteryRef?.current.play()
                     setTimeout(() => {
                         lotteryRef.current.stop(_awardList.length - 1)
                     }, 1500);
-                    setRemainTimes(remainTimes-1)
                 }
             } 
         } catch (error) {
@@ -263,6 +254,23 @@ export default function Lottery() {
         Taro.navigateTo({
             url: `/pages/bookLottery/index?activityId=${activityId}`
         })
+    }
+
+    const renderTip = () => {
+        if (activityInfo.status <= ACTIVITY_STATUS.NOT_BEGIN) {
+            return joinInfo ? 
+                (joinInfo.isPass ? "获得抽奖资格": "很遗憾没有获得抽奖资格")
+            : 
+            "报名通过" 
+        } else {
+            if (!joinInfo) { // 没报名的
+                return `活动${ACTIVITY_STATUS_MAP[activityInfo.status]}`
+            }
+            if (!joinInfo.remainTimes) {
+                return "您已经抽过奖啦~"
+            }
+        }
+        return "祝你好运"
     }
 
     return <div className='lottery-wrapper'>
@@ -297,14 +305,15 @@ export default function Lottery() {
                 />
                 <div className='drawer-bottom'>
                     {/* <div className='draw-times-tip'>抽奖次数：{remainTimes}次</div> */}
-                    <div className='draw-times-tip'>{joinInfo ? (joinInfo.isPass ? "获得抽奖资格": "很遗憾没有获得抽奖资格"): ("报名通过") }</div>
+                    <div className='draw-times-tip'>{renderTip()}
+                    </div>
                 </div>
                 
                 {
                     activityInfo.status >= ACTIVITY_STATUS.NOT_BEGIN && 
                     <NoticeBar className='record-notice' direction="vertical"
                         leftIcon={null}
-                        list={awardRecordList.map((e: any) => `${e.unionId}抽中了奖品：${e.prizeName}`)}
+                        list={awardRecordList.map((e: any) => `${e.nickName} 抽中了奖品：${e.prizeName}`)}
                         speed={10}
                         duration={1000}
                         height={30}
@@ -324,23 +333,17 @@ export default function Lottery() {
             <div className='join-activity-btn' onClick={bookActivity}>报名抽奖</div>
         }
         {
-            joinInfo &&
+            joinInfo && activityInfo.status <= ACTIVITY_STATUS.NOT_BEGIN && 
             <div className='join-activity-btn' onClick={() => Taro.navigateTo({url: "/pages/activityJoin/index?activityId="+activityId})}>报名记录</div>
         }
         {
             !!awardRecordList.length && <span className='record-link' onClick={() => Taro.navigateTo({url: "/pages/lotteryRecord/index?activityId="+activityId})}>中奖记录》</span>
         }
         {
-            !!activityInfo?.rules?.length &&
+            !!activityInfo?.rules &&
             <div className='award-rules-container'>
-                <h2>抽奖规则</h2>
-                <ul>
-                    {
-                        activityInfo?.rules?.map((el: any) => <li className='rule-item'>
-                            {el}
-                        </li>)
-                    }
-                </ul>
+                <Divider contentPosition="left">抽奖规则</Divider>
+                <TextArea value={activityInfo?.rules}/>
             </div>
         }
         </div>

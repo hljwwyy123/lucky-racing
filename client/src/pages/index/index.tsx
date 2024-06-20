@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react'
 import Taro, { useShareAppMessage } from '@tarojs/taro'
 import { View } from '@tarojs/components'
 import { Button, Cell } from "@nutui/nutui-react-taro"
-import classnames from "classnames"
 import { getActivityStatus } from "../../api/activity"
 import { ACTIVITY_STATUS, ACTIVITY_STATUS_MAP, DEFAULT_BANNER_IMAGE } from '../../constants/activity'
 import './index.less'
@@ -29,7 +28,6 @@ export default function ActivityList() {
     result.data.forEach(d => {
       d.status = getActivityStatus(d)
     })
-    result.data[3].bannerImage = 'https://img.alicdn.com/imgextra/i3/O1CN01kZW6ZO1PpfWsGi767_!!6000000001890-0-tps-1280-524.jpg'
     setList(result.data)
   }
 

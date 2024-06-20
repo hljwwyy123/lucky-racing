@@ -1,4 +1,5 @@
 import Taro from '@tarojs/taro';
+import { getActivityJoinInfo } from '../activity';
 
 export async function getAwardInfo(activityId: string) {
     const res: any = await Taro.shareCloud.callFunction({
@@ -35,13 +36,8 @@ export async function deleteAward(id: string) {
 }
 
 export async function getRemainTimes(activityId: string) {
-    const res: any = await Taro.shareCloud.callFunction({
-        name: 'lucky_get_lottery_remain_time',
-        data: {
-            activityId
-        }
-    });
-    return res
+    const joinInfo = await getActivityJoinInfo(activityId)
+    return joinInfo.times
 }
 
 export async function getBookInfo(activityId: string) {

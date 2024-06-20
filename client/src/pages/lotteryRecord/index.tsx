@@ -1,7 +1,7 @@
 import Taro, { useRouter } from '@tarojs/taro'
 import { useEffect, useState } from 'react'
-import moment from "moment"
-import { Divider, Cell } from "@nutui/nutui-react-taro"
+import { Image, Cell } from "@nutui/nutui-react-taro"
+import EmptyContent from '../../components/EmptyContent'
 import "./awardrecord.less"
 
 interface RouterParams {
@@ -32,10 +32,14 @@ export default function LotteryRecord() {
     }
 
     return <div className='award-record-container'>
-          <Divider contentPosition="left">中奖记录</Divider>
+        {
+            !awardRecordList.length && <EmptyContent text="还没有人中奖" />
+        }
           {
               awardRecordList.map((el: any) => <Cell className='record-item' 
-                title={el.unionId} description={moment(el.createdAt).format('YYYY-MM-DD HH:mm:ss')} 
+                title={<Image className='item-avatar' src={el.avatar} width={30} height={30} radius={"50%"} />} 
+                // description={moment(el.createdAt).format('YYYY-MM-DD HH:mm:ss')} 
+                description={el.nickName}
                 extra={el.prizeName}>
               </Cell>)
           }

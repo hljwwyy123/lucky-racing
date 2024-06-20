@@ -79,8 +79,8 @@ export default function CreateActivity() {
         setUnionId(unionId)
     }
 
-    const genertSeed = () => {
-        let seed: string | number = ~~(Math.random() * 100);
+    const genertSeed = (range = 1000) => {
+        let seed: string | number = ~~(Math.random() * range);
         if (!seed) {
             genertSeed()
             return
@@ -137,6 +137,13 @@ export default function CreateActivity() {
         }
         payload.avatar = avatarFileId
         console.log(payload)
+        if (!payload.localImage) {
+            Taro.showToast({
+                icon: "error",
+                title: "请上传成绩证明图片"
+            })
+            return
+        }
         const createRes = await Taro.shareCloud.callFunction({
             name: 'lucky_approve_submit',
             data: {
@@ -215,22 +222,6 @@ export default function CreateActivity() {
                         type="text"
                     />
                 </Form.Item>
-                {/* <Form.Item
-                    required
-                    label="成绩图片"
-                    name="scoreImage"
-                    rules={[
-                        { validator: validateAvatar, message: '请上传成绩证明' }
-                    ]}
-                >
-                    <Uploader 
-                        url="/"
-                        // fileList={}
-                        // onStart={onUploadScoreImage}
-                        style={{ marginInlineEnd: '10px' }}
-                        onChange={onUploadScoreImage} 
-                    />
-                </Form.Item> */}
                 <Form.Item
                     required
                     label="成绩图片"

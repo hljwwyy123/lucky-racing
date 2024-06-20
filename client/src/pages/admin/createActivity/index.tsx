@@ -1,12 +1,11 @@
 import { useEffect, useState } from 'react'
 import Taro, { useRouter } from '@tarojs/taro'
 import { View } from '@tarojs/components'
-import { Button, Form, DatePicker, Switch, Image, Input, Divider } from "@nutui/nutui-react-taro"
-import { Edit, Comment, List, Flag, Coupon, Notice, ArrowRight } from '@nutui/icons-react-taro'
+import { Button, Form, DatePicker, TextArea, Switch, Image, Input } from "@nutui/nutui-react-taro"
+import { Edit, Upload } from '@nutui/icons-react-taro'
 import { getActivityInfo } from "../../../api/activity"
-import CustomNoticeBar from '../../../components/NoticeBar'
-import { sleep } from '../../../utils'
-// import './my.less'
+import { UUID } from '../../../utils'
+import './index.less'
 
 interface RouterParams {
   activityId?: string
@@ -23,6 +22,7 @@ export default function CreateActivity() {
   const [showBeginTime, setShowBeginTime] = useState(false)
   const [showEndTime, setShowEndTime] = useState(false)
   const [needReview, setNeedReview] = useState(false)
+  const [localImage, setlocalImage] = useState<string>()
 
   const router = useRouter<any>();
   const [form] = Form.useForm()
@@ -31,7 +31,6 @@ export default function CreateActivity() {
   useEffect(() => {
     const { params } = router as { params: RouterParams };
     const { activityId = '' } = params;
-    console.log({activityId})
     if (activityId) {
       setActivityId(activityId)
       getData(activityId)
@@ -48,6 +47,8 @@ export default function CreateActivity() {
     form.setFieldsValue({ endTime: activityInfo.endTime})
     form.setFieldsValue({ activityName: activityInfo.activityName})
     form.setFieldsValue({ needReview: activityInfo.needReview})
+    form.setFieldsValue({ bannerImage: activityInfo.bannerImage })
+    setlocalImage(activityInfo.bannerImage)
     setNeedReview(activityInfo.needReview)
 
     Taro.hideLoading()
@@ -84,8 +85,20 @@ export default function CreateActivity() {
     setLoading(false)
   }
 
+  const onUploadImage = async (localFilePath: string) => {
+    Taro.showLoading()
+    setlocalImage(localFilePath)
+    await Taro.initCloud()
+    const result: any = await Taro.shareCloud.uploadFile({
+        cloudPath: `lucky/banner/${UUID()}.jpg`, // 以用户的 OpenID 作为存储路径
+        filePath: localFilePath,
+    });
+    Taro.hideLoading();
+    form.setFieldsValue({bannerImage: result.fileID})
+  }
+
   return (
-    <View className='mine-container'>
+    <View className='create-activity-container'>
       {/* <CustomNoticeBar closeable={true} text="如发现成绩作弊取消抽奖资格" /> */}
       <Form 
         form={form}
@@ -144,6 +157,37 @@ export default function CreateActivity() {
           />
         </Form.Item>
         <Form.Item
+            label="活动banner"
+            name="bannerImage"
+        >
+            {
+                <div style={{ width: 197 }} className='local-image-preview' onClick={() => {
+                    Taro.chooseImage({
+                        count: 1, // 默认9
+                        sizeType: ['original', 'compressed'], // 可以指定是原图还是压缩图，默认二者都有
+                        sourceType: ['album', 'camera'], // 可以指定来源是相册还是相机，默认二者都有，在H5浏览器端支持使用 `user` 和 `environment`分别指定为前后摄像头
+                        success: async function (res) {
+                            // 返回选定照片的本地文件路径列表，tempFilePath可以作为img标签的src属性显示图片
+                            const localFilePath = res.tempFilePaths[0];
+                            onUploadImage(localFilePath)
+                        }
+                    })
+                }} >
+                {
+                localImage ? <div>
+                    <Image src={localImage} width={197} height={80} />
+                    <Edit onClick={() => setlocalImage('')} className='edit-icon' />
+                    </div>
+                    :
+                <div style={{ width: 197, height: 80 }} className='image-placeholder' >
+                    <Upload size={16} />
+                    <span>banner图片 790 * 320</span>
+                </div>
+                }
+            </div>
+            }
+        </Form.Item>
+        <Form.Item
           required
           label="是否需要审核"
           name="needReview"
@@ -151,6 +195,18 @@ export default function CreateActivity() {
           <Switch onChange={(v) => {
             setNeedReview(v)
           }} checked={needReview} />
+        </Form.Item>
+        <Form.Item
+          required
+          label="抽奖规则"
+          name="rules"
+          rules={[
+            { required: true, message: '请输入抽奖规则' },
+          ]}
+        >
+          <TextArea
+            placeholder="抽奖规则"
+          />
         </Form.Item>
         <DatePicker 
           defaultValue={nowTime}
@@ -179,3 +235,4 @@ export default function CreateActivity() {
     </View>
   )
 }
+
