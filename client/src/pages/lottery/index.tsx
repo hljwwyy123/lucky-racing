@@ -23,7 +23,7 @@ const prizeListConfig = {
         padding: '66rpx',
         imgs: [{
             // src: 'https://img.alicdn.com/imgextra/i1/O1CN01xy8Kkj1KmOc2bqD6G_!!6000000001206-2-tps-700-700.png',
-            src: 'https://img.alicdn.com/imgextra/i4/O1CN01oLKbOe1JZk3slDuQ2_!!6000000001043-2-tps-676-676.png',
+            src: 'https://img.alicdn.com/imgextra/i3/O1CN0119Bgfg28W7KfUKjrU_!!6000000007939-2-tps-1284-1284.png',
             // src: 'https://img.alicdn.com/imgextra/i1/O1CN01fpSNp91RszdUgogCX_!!6000000002168-2-tps-690-690.png',
             width: '100%',
             height: '100%',
