@@ -175,31 +175,27 @@ export default function Lottery() {
                 return null;
             } 
             if (!joinInfo) {
-                Taro.showToast({
-                    icon: 'none',
-                    title: activityInfo.status <= ACTIVITY_STATUS.NOT_BEGIN ? "先报名参加活动哦~" : "您没有报名参与，下次早点报名呦~"
-                })
+                Taro.showModal({
+                    content: activityInfo.status <= ACTIVITY_STATUS.NOT_BEGIN ? "先报名参加活动哦~" : "您没有报名参与，下次早点报名呦~"
+                });
                 return
             } else if (!joinInfo.isPass){
-                Taro.showToast({
-                    icon: 'none',
-                    title: "您没有获得抽奖资格~"
+                Taro.showModal({
+                    content: "您没有获得抽奖资格~"
                 })
                 return
             }
 
             if (activityInfo.status === ACTIVITY_STATUS.NOT_BEGIN) {
-                Taro.showToast({
-                    icon: 'none',
-                    title: "活动还未开始"
+                Taro.showModal({
+                    content: "活动还未开始"
                 })
                 return
             }
             const remainTimes = await getRemainTimes(activityId)
             if (remainTimes <= 0 ) {
-                Taro.showToast({
-                    icon: 'none',
-                    title: "您已经抽过了~"
+                Taro.showModal({
+                    content: "您已经抽过了~"
                 })
                 return
             }
@@ -228,7 +224,7 @@ export default function Lottery() {
                 if (result?.errorMsg){
                     Taro.showModal({
                         content: result.errorMsg
-                    }); 
+                    });
                     setDrawing(false)
                     _drawing = false;
                     lotteryRef.current.stop(_awardList.length - 1)
@@ -245,7 +241,9 @@ export default function Lottery() {
             });
             _drawing = false;
         } finally {
-            Taro.hideLoading()
+            setTimeout(() => {
+                Taro.hideLoading()
+            }, 1000);
         }
     }, 300)
 
