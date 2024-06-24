@@ -43,11 +43,14 @@ export default function CreateActivity() {
     await Taro.initCloud();
     const activityInfo: any = await getActivityInfo(id)
     setActivityInfo(activityInfo);
-    form.setFieldsValue({ beginTime: activityInfo.beginTime})
-    form.setFieldsValue({ endTime: activityInfo.endTime})
-    form.setFieldsValue({ activityName: activityInfo.activityName})
-    form.setFieldsValue({ needReview: activityInfo.needReview})
-    form.setFieldsValue({ bannerImage: activityInfo.bannerImage })
+    form.setFieldsValue({ 
+      beginTime: activityInfo.beginTime,
+      endTime: activityInfo.endTime,
+      activityName: activityInfo.activityName,
+      needReview: activityInfo.needReview,
+      // bannerImage: activityInfo.bannerImage.split('lucky/banner/')[1].split('.')[0],
+      rules: activityInfo.rules
+    })
     setlocalImage(activityInfo.bannerImage)
     setNeedReview(activityInfo.needReview)
 
@@ -72,10 +75,12 @@ export default function CreateActivity() {
       Taro.showModal({
         title: "创建成功",
         content: "现在去配置奖品吧~",
-        success: () => {
-          Taro.navigateTo({
-            url: '/pages/admin/awardConfig/index?activityId='+id
-          })
+        success: (e) => {
+          if (e.confirm) {
+            Taro.navigateTo({
+              url: '/pages/admin/awardConfig/index?activityId='+id
+            })
+          }
         },
         fail: () => {
           Taro.navigateBack()

@@ -174,6 +174,12 @@ export default function Lottery() {
                 console.log('current is drawing ~~~ !')
                 return null;
             } 
+            if (activityInfo.status >= ACTIVITY_STATUS.ENDED) {
+                Taro.showModal({
+                    content: "活动已结束"
+                })
+                return
+            }
             if (!joinInfo) {
                 Taro.showModal({
                     content: activityInfo.status <= ACTIVITY_STATUS.NOT_BEGIN ? "先报名参加活动哦~" : "您没有报名参与，下次早点报名呦~"
@@ -185,13 +191,14 @@ export default function Lottery() {
                 })
                 return
             }
-
             if (activityInfo.status === ACTIVITY_STATUS.NOT_BEGIN) {
                 Taro.showModal({
                     content: "活动还未开始"
                 })
                 return
             }
+
+            
             const remainTimes = await getRemainTimes(activityId)
             if (remainTimes <= 0 ) {
                 Taro.showModal({
@@ -256,19 +263,19 @@ export default function Lottery() {
 
     const renderTip = () => {
         if (activityInfo.status <= ACTIVITY_STATUS.NOT_BEGIN) {
-            return joinInfo ? 
-                (joinInfo.isPass ? "获得抽奖资格": "很遗憾没有获得抽奖资格")
+            return joinInfo ? (joinInfo.isPass !== undefined ? (joinInfo.isPass ? "获得抽奖资格": "很遗憾没有获得抽奖资格") : "请等待审核")
             : 
-            "报名通过" 
+            "报名获取抽奖资格" 
         } else {
             if (!joinInfo) { // 没报名的
                 return `活动${ACTIVITY_STATUS_MAP[activityInfo.status]}`
-            }
-            if (!joinInfo.remainTimes) {
-                return "您已经抽过奖啦~"
+            } else {
+                if (!joinInfo.times) {
+                    return "您已经抽过奖啦~"
+                }
             }
         }
-        return "祝你好运"
+        return `活动${ACTIVITY_STATUS_MAP[activityInfo.status]}`
     }
 
     return <div className='lottery-wrapper'>

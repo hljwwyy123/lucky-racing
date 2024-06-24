@@ -43,7 +43,7 @@ export default function CreateActivity() {
             getJoinInfo(activityId)
         }
         getUserOpenId()
-        genertSeed()
+        // genertSeed()
         
         const data = initDatasource()
         setScoreDatasource(data)
@@ -80,15 +80,32 @@ export default function CreateActivity() {
     }
 
     const genertSeed = (range = 1000) => {
-        let seed: string | number = ~~(Math.random() * range);
-        if (!seed) {
-            genertSeed()
-            return
-        }
-        seed = toCode(seed+ '');
-        setFished(true)
-        setRandomSeed(seed);
-        form.setFieldsValue({randomSeed: seed})
+        const storageKey = `seed_${activityId}`;
+        const storageSeed = Taro.getStorageSync(storageKey)
+        if (storageSeed) {
+            Taro.showToast({title: "已获取记录😁"})
+            setRandomSeed(storageSeed);
+            form.setFieldsValue({randomSeed: storageSeed})
+            setFished(true)
+            return storageSeed
+        } 
+        Taro.showModal({
+            title: "友情提示",
+            content: "每人只能摇一次，筛子将通过加密处理，摇过之后不可更改，确定要摇了吗？",
+            success: () => {
+                let seed: string | number = ~~(Math.random() * range);
+                if (!seed) {
+                    genertSeed()
+                    return
+                }
+                seed = toCode(seed+ '');
+                setFished(true)
+                setRandomSeed(seed);
+                Taro.setStorageSync(storageKey, seed)
+                form.setFieldsValue({randomSeed: seed})
+            }
+        })
+        
     }
 
     const uploadAvatar = async (e) => {
@@ -137,13 +154,6 @@ export default function CreateActivity() {
         }
         payload.avatar = avatarFileId
         console.log(payload)
-        if (!payload.localImage) {
-            Taro.showToast({
-                icon: "error",
-                title: "请上传成绩证明图片"
-            })
-            return
-        }
         const createRes = await Taro.shareCloud.callFunction({
             name: 'lucky_approve_submit',
             data: {
@@ -153,7 +163,8 @@ export default function CreateActivity() {
         });
         if (createRes.result) {
             Taro.showModal({
-                title: "预约成功",
+                title: "报名成功",
+                content: "等待审核结果吧~祝你好运",
                 success: () => {
                     Taro.navigateBack()
                 },
@@ -226,6 +237,9 @@ export default function CreateActivity() {
                     required
                     label="成绩图片"
                     name="scoreImage"
+                    rules={[
+                        { required: true, message: '请上传成绩证明' },
+                    ]}
                 >
                     {
                         <div style={{ width: 98 }} className='local-image-preview'onClick={() => {
@@ -259,10 +273,15 @@ export default function CreateActivity() {
                     label="抽奖种子"
                     name="randomSeed"
                     rules={[
-                        { required: true},
+                        { required: true, message: "请Roll筛子"},
                     ]}
                 >
-                    <Input className="nut-input-text" readOnly /> 
+                    {
+                        randomSeed ? 
+                        <Input className="nut-input-text" readOnly /> 
+                        :
+                        <Button type='success' onClick={() => genertSeed()} >🎲 Roll</Button>
+                    }
                 </Form.Item>
             </Form>
             <Picker 

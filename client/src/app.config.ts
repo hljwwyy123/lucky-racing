@@ -2,7 +2,6 @@ export default {
   pages: [
     'pages/index/index',
     'pages/my/index',
-    'pages/activityRegistry/index',
     'pages/awardHistory/index',
     'pages/admin/activityList/index',
     'pages/admin/approve/index',

@@ -26,16 +26,26 @@ Page {background-color: #f7f8fa;}
             width: 120px;
         }
         .th-score {
-            width: 120px;
+            display: flex;
+            align-items: center;
+            width: 130px;
             text-indent: 50px;
         }
         .th-seed {
+            display: flex;
+            align-items: center;
             width: 80px;
         }
         .th-gmt {
             margin-right: 40px;
             // width: 140px;
             // text-indent: 40px;
+        }
+        .sort-icon{
+            margin-left: 2px;
+            display: flex;
+            flex-direction: column;
+            transform: scale(0.75);
         }
     }
     .nut-checkbox-icon-checked {
@@ -53,6 +63,9 @@ Page {background-color: #f7f8fa;}
             align-items: center;
             width: 90px;
             justify-content: center;
+            .no-i {
+                margin-left: 6px;
+            }
         }
         .user-cell {
             display: flex;
