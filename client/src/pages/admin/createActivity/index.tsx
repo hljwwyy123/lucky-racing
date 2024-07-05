@@ -47,12 +47,12 @@ export default function CreateActivity() {
       beginTime: activityInfo.beginTime,
       endTime: activityInfo.endTime,
       activityName: activityInfo.activityName,
-      needReview: activityInfo.needReview,
+      // needReview: activityInfo.needReview,
       // bannerImage: activityInfo.bannerImage.split('lucky/banner/')[1].split('.')[0],
       rules: activityInfo.rules
     })
     setlocalImage(activityInfo.bannerImage)
-    setNeedReview(activityInfo.needReview)
+    // setNeedReview(activityInfo.needReview)
 
     Taro.hideLoading()
   }
@@ -192,7 +192,7 @@ export default function CreateActivity() {
             </div>
             }
         </Form.Item>
-        <Form.Item
+        {/* <Form.Item
           required
           label="是否需要审核"
           name="needReview"
@@ -200,7 +200,7 @@ export default function CreateActivity() {
           <Switch onChange={(v) => {
             setNeedReview(v)
           }} checked={needReview} />
-        </Form.Item>
+        </Form.Item> */}
         <Form.Item
           required
           label="抽奖规则"

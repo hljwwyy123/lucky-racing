@@ -55,7 +55,7 @@ export default function CreateActivity() {
         Taro.showLoading()
         await Taro.initCloud();
         const res: any = await Taro.shareCloud.callFunction({
-          name: 'find_my_bestscore',
+          name: 'find_my_bestscore_currentmonth',
         });
         if (res.result?.data) {
           const { data } = res.result;
@@ -80,7 +80,7 @@ export default function CreateActivity() {
     }
 
     const genertSeed = (range = 1000) => {
-        const storageKey = `seed_${activityId}`;
+        const storageKey = `${activityId}_seed`;
         const storageSeed = Taro.getStorageSync(storageKey)
         if (storageSeed) {
             Taro.showToast({title: "已获取记录😁"})
@@ -92,17 +92,19 @@ export default function CreateActivity() {
         Taro.showModal({
             title: "友情提示",
             content: "每人只能摇一次，筛子将通过加密处理，摇过之后不可更改，确定要摇了吗？",
-            success: () => {
-                let seed: string | number = ~~(Math.random() * range);
-                if (!seed) {
-                    genertSeed()
-                    return
+            success: async (e) => {
+                if (e.confirm) {
+                    let seed: string | number = ~~(Math.random() * range);
+                    if (!seed) {
+                        genertSeed()
+                        return
+                    }
+                    seed = toCode(seed+ '');
+                    setFished(true)
+                    setRandomSeed(seed);
+                    Taro.setStorageSync(storageKey, seed)
+                    form.setFieldsValue({randomSeed: seed})
                 }
-                seed = toCode(seed+ '');
-                setFished(true)
-                setRandomSeed(seed);
-                Taro.setStorageSync(storageKey, seed)
-                form.setFieldsValue({randomSeed: seed})
             }
         })
         

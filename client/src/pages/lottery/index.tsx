@@ -13,7 +13,6 @@ interface RouterParams {
 }
 
 const DRAW_BTN_IMAGE = 'https://img.alicdn.com/imgextra/i3/O1CN01Bk2rxs1jC5cQfZDAg_!!6000000004511-2-tps-235-266.png';
-const DRAW_BTN_IMAGE_DISABLE= 'https://img2.imgtp.com/2024/05/26/rktUvZTE.png';
 const PRIZE_BLOCK_BG_1 = "#fee7e9"; // #fee7e9 #fbd6d5
 const PRIZE_BLOCK_BG_2 = "#ffffff";
 const PRIZE_BLOCK_TEXT = "#993f36"; // #ed6252
